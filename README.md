@@ -25,12 +25,12 @@ The sample dataset could be accessed here.
 
 ## Repository Structure
 
-* **Script**
+* **Script**: This folder contains all the code for data processing.
     * **sync_utils**
         * **sync_rerun_play.py**: The python script used to play synchronized VRS files from two perspectives in rerun application.
         * **sync_frames_display.py** The python script used to plot the synchornized frames.
         * **vrs_sync_to_mp4.py** The python script used to combine two-perspective VRS files into a single MP4 file.
-        * **vrs_sync_to_mp4_utils.py** The file contain the helper functions that used in *vrs_sync_to_mp4.py*.
+        * **vrs_sync_to_mp4_utils.py** The file contains the helper functions that used in *vrs_sync_to_mp4.py*.
 
 
 
