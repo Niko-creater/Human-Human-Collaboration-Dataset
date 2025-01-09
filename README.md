@@ -20,7 +20,7 @@ Our project report : [Human-Human-Collaboration-Dataset Report](Report/Human-Col
 
 ## Dataset Sample
 
-The sample dataset could be accessed [here](https://drive.google.com/drive/folders/1bIRUw3rXNFYa44ZWabUg5g3bOMronBiP?usp=sharing).
+The dataset sample could be accessed [here](https://drive.google.com/drive/folders/1bIRUw3rXNFYa44ZWabUg5g3bOMronBiP?usp=sharing). 
 
 ## Installation Guide
 
@@ -32,7 +32,7 @@ python3 -m pip install projectaria-tools'[all]'
 ```
 
 #### Install Project Aria Tools for C++ (Ubuntu)
-***Step 0: Download codebase**
+**Step 0: Download codebase**
 ```
 mkdir -p $HOME/Documents/projectaria_sandbox
 cd $HOME/Documents/projectaria_sandbox
