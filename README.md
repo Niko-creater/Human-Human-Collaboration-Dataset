@@ -111,7 +111,7 @@ For more details, please check [Project Aria Doc](https://facebookresearch.githu
 
 We would like to express our deepest gratitude to the following individuals and organizations whose support, tools, and guidance made this project possible:
 
-- [Project Aria](https://facebookresearch.github.io/projectaria_tools/) for providing Aria glasses and nd the accompanying utility functions.
+- [Project Aria](https://facebookresearch.github.io/projectaria_tools/) for providing Aria glasses and the accompanying utility functions.
 - Our course advisor([MixedRealityETHZ Team](https://github.com/MixedRealityETHZ)), project supervisiors 
 - Our teammates and collaborators for their contributions to the design and implementation of the project.
 - The research participants who contributed to our dataset collection by engaging in the collaboration tasks.
