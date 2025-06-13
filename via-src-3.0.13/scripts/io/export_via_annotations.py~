@@ -1,0 +1,48 @@
+# MRI Stenosis : export manual annotations in csv format
+#
+# Author: Abhishek Dutta <adutta@robots.ox.ac.uk>
+# 11 Oct. 2019
+
+import http.client
+import string
+import os
+import json
+import sys
+
+VIA_SERVER = 'zeus.robots.ox.ac.uk'
+CLINICIAN_ID_LIST = {'e302eadf-aa53-4a5a-b958-11175692c928'} # add more clinician-id as comma separated values (as required)
+CSV_ANNOTATION_EXPORT_FILENAME = './annotations.csv' ## Update this as required
+
+def fetch_via3_shared_project(project_id):
+  conn = http.client.HTTPConnection(VIA_SERVER)
+  annotation_url = '/via/store/3.x.y/' + project_id
+  conn.request('GET', annotation_url)
+  response = conn.getresponse()
+  if response.status != 200:
+    print('Failed to fetch annotations from http://%s%s' % (VIA_SERVER, annotation_url))
+    print('HTTP Error: %d %s' % (response.status, response.reason))
+    sys.exit(0)
+
+  via_project_data = response.read().decode('utf-8')
+  conn.close()
+  return via_project_data
+
+with open(CSV_ANNOTATION_EXPORT_FILENAME, 'w') as out:
+    out.write('clinician_id,image1,image2,which_shows_more_spinal_stenosis,which_shows_more_bony_spinal_stenosis,which_shows_more_thecal_dural_spinal_stenosis\n')
+  for clinician_id in CLINICIAN_ID_LIST:
+    d_str = fetch_via3_shared_project(clinician_id)
+    d = json.loads(d_str)
+
+    for mid in d['metadata']:
+      vid = d['metadata'][mid]['vid']
+      fid = d['view'][vid]['fid_list'][0]
+      annotation = ''
+      for aid in d['attribute']:
+        if aid in d['metadata'][mid]['av']:
+          avalue = d['metadata'][mid]['av'][aid]
+          annotation += '"' + d['attribute'][aid]['options'][avalue] + '",'
+        else:
+          annotation += '"?",'
+      annotation = annotation[:-1]
+      out.write('%s,%s,%s,%s\n' % ( clinician_id, filename, annotation))
+

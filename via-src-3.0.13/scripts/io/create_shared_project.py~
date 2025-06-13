@@ -1,0 +1,193 @@
+# MRI Stenosis : export VIA project for each clinician
+#
+# Author: Abhishek Dutta <adutta@robots.ox.ac.uk>
+# 10 Oct. 2019
+
+import http.client
+import string
+import os
+import pickle
+import json
+import uuid
+import time
+import csv
+
+file_group_filename = '/data/datasets/amir_jamaludin/mri_stenosis/mri_stenosis_20190805/file_group.csv'
+clinician_assignment_filename = '/data/datasets/amir_jamaludin/mri_stenosis/mri_stenosis_20190805/clinician_assignment.csv'
+
+file_group = {}
+clinician_assignment = {}
+
+def create_via3_shared_project(clinician_id, via_project_data):
+  via_project_data_str = json.dumps(via_project_data)
+  conn = http.client.HTTPConnection('zeus.robots.ox.ac.uk')
+  conn.request('POST', '/via/store/3.x.y/', via_project_data_str)
+  #conn.request('POST', '/via/store/3.x.y/', '')
+  response = conn.getresponse()
+  via_project_id = ''
+  if response.status == 200:
+    via_project_id = response.read().decode('utf-8')
+  else:
+    via_project_id = 'ERROR:' + response.reason
+  conn.close()
+  return via_project_id
+
+def save_json(json_data, filename):
+  with open(filename, 'w') as f:
+    json.dump( json_data, f, indent=None, separators=(',',':') )
+
+def init_via_project(clinician_id):
+  d = {};
+  d['project'] = {
+    'pid': '__VIA_PROJECT_ID__',
+    'rev': '__VIA_PROJECT_REV_ID__',
+    'rev_timestamp': '__VIA_PROJECT_REV_TIMESTAMP__',
+    'pname': 'Clinician ' + clinician_id + ' (MRI Stenosis, Oct 2019)',
+    'data_format_version': '3.1.1',
+    'creator': 'VGG Image Annotator (http://www.robots.ox.ac.uk/~vgg/software/via)',
+    'created': int(time.time()*1000),
+    'vid_list': [],
+  };
+  d['config'] = {
+    'file': {
+      'loc_prefix': {
+        '1':'',
+        '2':'http://zeus.robots.ox.ac.uk/via/mri_stenosis/oct2019/images/',
+        '3':'',
+        '4':'',
+      },
+    },
+    'ui': {
+      'file_content_align':'center',
+      'file_metadata_editor_visible':True,
+      'spatial_metadata_editor_visible':True,
+      'spatial_region_label_attribute_id':'',
+    },
+  };
+  d['attribute'] = {
+    "1": {
+      "aname": "spinal_stenosis",
+      "anchor_id": "FILEN_Z0_XY0",
+      "type": 3,
+      "desc": "Overall, which image shows more spinal stenosis?",
+      "options": {
+        "0": "Image 1",
+        "1": "Not Sure",
+        "2": "Image 2"
+      },
+      "default_option_id": ""
+    },
+    "2": {
+      "aname": "bony_spinal_stenosis",
+      "anchor_id": "FILEN_Z0_XY0",
+      "type": 3,
+      "desc": "Which image shows more 'bony' spinal stenosis?",
+      "options": {
+        "0": "Image 1",
+        "1": "Not Sure",
+        "2": "Image 2"
+      },
+      "default_option_id": ""
+    },
+    "3": {
+      "aname": "thecal_dural_spinal_stenosis",
+      "anchor_id": "FILEN_Z0_XY0",
+      "type": 3,
+      "desc": "Which image shows more 'thecal sac/dural sac' spinal stenosis?",
+      "options": {
+        "0": "Image 1",
+        "1": "Not Sure",
+        "2": "Image 2"
+      },
+      "default_option_id": ""
+    },
+  };
+
+  d['file'] = {};
+  d['view'] = {};
+  d['metadata'] = {};
+  return d
+
+
+## load file group
+with open(file_group_filename, 'r') as f:
+  csvreader = csv.reader(f, delimiter=',')
+  for row in csvreader:
+    if row[0] == 'filename' and row[1] == 'group_id':
+      continue # skip header
+    img_filename = row[0]
+    img_group = row[1]
+    if img_group not in file_group:
+      file_group[img_group] = []
+    file_group[img_group].append(img_filename)
+
+
+## load file group
+with open(clinician_assignment_filename, 'r') as f:
+  csvreader = csv.reader(f, delimiter=',')
+  for row in csvreader:
+    if row[0] == 'clinician_id' and row[1] == 'group_id':
+      continue # skip header
+    clinician_id = row[0]
+    group_id = row[1]
+    if clinician_id not in clinician_assignment:
+      clinician_assignment[clinician_id] = []
+    clinician_assignment[clinician_id].append(group_id)
+
+## add a fictitious clinician (for demonstration purpose)
+clinician_assignment['demo'] = ['1', '263', '312', '410', '460', '490']
+
+index_fn = os.path.join('/data/datasets/amir_jamaludin/mri_stenosis/mri_stenosis_20190805/via3_project/index.txt')
+index_f = open(index_fn, 'w')
+index_f.write('clinician-id,via-project-id\n')
+for clinician_id in clinician_assignment:
+  d = init_via_project(clinician_id)
+
+  ## create a list of all file for this clinician
+  project_files = {}
+  fid = 1
+  for group_id in clinician_assignment[clinician_id]:
+    for filename in file_group[group_id]:
+      if filename not in project_files:
+        d['file'][fid] = {
+          'fid':str(fid),
+          'fname':filename,
+          'type':2,
+          'loc':2,
+          'src':filename,
+        }
+
+        project_files[filename] = str(fid);
+        fid = fid + 1
+
+
+  vid = 1
+  for group_id in clinician_assignment[clinician_id]:
+    ## add all files for this group
+    fid_list = [];
+    for filename in file_group[group_id]:
+      fid = project_files[filename]
+      fid_list.append(fid)
+    ## create a view for this group
+    d['view'][vid] = {
+      'fid_list': fid_list,
+    }
+    d['project']['vid_list'].append( str(vid) )
+    vid = vid + 1
+
+  # add a view for each file (needed when individual images are annotated)
+  for filename in project_files:
+    d['view'][vid] = { 'fid_list': [ project_files[filename] ] };
+    vid = vid + 1
+
+  via_project_id = create_via3_shared_project(clinician_id, d)
+  if via_project_id.startswith('ERROR'):
+    print('Error writing clinician-id %s\n' % (clinician_id))
+  else:
+    save_json(d, os.path.join('/data/datasets/amir_jamaludin/mri_stenosis/mri_stenosis_20190805/via3_project/', clinician_id + '.json'))
+    index_f.write('%s,%s\n' % (clinician_id, via_project_id))
+    print('Written clinician-id %s\n' % (clinician_id))
+
+  #print( 'Writing %s ...' % (d['project']['pname']) )
+  #break
+index_f.close()
