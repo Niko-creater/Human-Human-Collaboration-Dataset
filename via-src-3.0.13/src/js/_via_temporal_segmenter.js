@@ -1409,7 +1409,7 @@ _via_temporal_segmenter.prototype._tmetadata_mid_add_at_timepoint = function(t) 
       self.metadata_last_added_mid = new_mid;
 
       // 6. Prompt user for text annotation
-      var label = 'Enter annotation for ' + self._time2strms(t) + ':';
+      var label = 'Enter temporal annotation for time ' + self._time2str(t) + ':';
       var userText = prompt(label, '');
       if (userText === null) {
         // User cancelled: leave segment as-is
@@ -1434,6 +1434,31 @@ _via_temporal_segmenter.prototype._tmetadata_mid_add_at_timepoint = function(t) 
     .catch(function(err) {
       console.error('Error during text annotation:', err);
       _via_util_msg_show('Failed to add text annotation');
+    });
+};
+
+// new for editing existing annotations
+_via_temporal_segmenter.prototype._show_annotation_editor = function(mid) {
+  var self = this;
+  // Replace with your real TEXT attribute ID
+  var TEXT_ANNOTATION_AID = 'attr5';
+  // Fetch current value (or empty string)
+  var currentText = this.d.store.metadata[mid].av[TEXT_ANNOTATION_AID] || '';
+  var newText = prompt('Edit annotation:', currentText);
+  if (newText === null) {
+    // user cancelled
+    return;
+  }
+  // update attribute value
+  this.d.metadata_update_av(this.vid, mid, TEXT_ANNOTATION_AID, newText)
+    .then(function() {
+      _via_util_msg_show('Annotation updated', true);
+      // redraw only this group
+      self._tmetadata_group_gid_draw(self.selected_gid);
+    })
+    .catch(function(err) {
+      console.error('Failed to update annotation:', err);
+      _via_util_msg_show('Failed to update annotation');
     });
 };
 
@@ -1534,6 +1559,13 @@ _via_temporal_segmenter.prototype._tmetadata_group_gid_mousedown = function(e) {
   var gindex = e.target.dataset.gindex;
   var t = this._tmetadata_gtimeline_canvas2time(x);
 
+  // first, if double-click AND a segment is already selected under this point,
+  // open the annotation editor for it
+  if (e.detail === 2 && this.selected_mindex !== -1) {
+    this._show_annotation_editor(this.selected_mid);
+    return;
+  }
+  
   if ( gindex !== this.selected_gindex ) {
     // select this gid
     this._tmetadata_group_gid_sel(gindex);

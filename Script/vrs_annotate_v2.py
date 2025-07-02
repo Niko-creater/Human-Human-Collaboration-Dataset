@@ -12,8 +12,11 @@ from datetime import timedelta
 import cv2, numpy as np, rerun as rr
 from pyvrs.reader import SyncVRSReader
 
-VRS_PATH   = "/home/peiyu/Projects/MR/vrs_2025_06_05/person_a.vrs"
-OUT_JSON   = "annotations.json"
+saving_folder_name = "alex_alex_session"
+person_id = "person_a"
+question_id = "1"
+VRS_PATH   = f"/Users/troyehuang/projectaria_client_sdk_samples/{saving_folder_name}/{person_id}.vrs"
+OUT_JSON   = f"/Users/troyehuang/projectaria_client_sdk_samples/{saving_folder_name}/annotations_{person_id}_{question_id}.json"
 RGB_SID    = "214-1"
 WINDOW_SEC = 10
 RESIZE_TO  = (960, 540)
@@ -45,8 +48,14 @@ def send(event=None):
 
 tk.Button(root, text="Send", command=send).pack(pady=(0, 4))
 root.bind("<Control-Return>", send)        # Ctrl+Enter 发送
+# root.bind("<Command-Return>", send)        # Ctrl+Enter 发送
+
 root.bind_all("<Control-p>",   lambda e: toggle_pause())  # Ctrl+P
 root.bind_all("<Control-q>",   lambda e: quit_app())      # Ctrl+Q
+# root.bind_all("<Control-p>", lambda e: toggle_pause())
+# root.bind_all("<Command-p>", lambda e: toggle_pause())
+# root.bind_all("<Control-q>", lambda e: quit_app())
+# root.bind_all("<Command-q>", lambda e: quit_app())
 root.protocol("WM_DELETE_WINDOW", lambda: quit_app())
 
 def toggle_pause():

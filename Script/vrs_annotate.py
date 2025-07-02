@@ -13,7 +13,7 @@ import cv2, numpy as np, rerun as rr
 from pynput import keyboard as kb
 from pyvrs.reader import SyncVRSReader
 
-VRS_PATH   = "/home/peiyu/Projects/MR/vrs_2025_06_05/person_a.vrs"
+VRS_PATH   = "/Users/troyehuang/projectaria_client_sdk_samples/video_server/person_a.vrs"
 OUT_JSON   = "annotations.json"
 RGB_SID    = "214-1"
 WINDOW_SEC = 10

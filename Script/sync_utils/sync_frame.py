@@ -15,7 +15,8 @@ from projectaria_tools.core.sensor_data import (
 )
 from projectaria_tools.core.stream_id import StreamId
 
-ticsync_sample_path = "/home/peiyu/projectaria_client_sdk_samples/ticsync/recording_session_11_06_001"
+# ticsync_sample_path = "/home/peiyu/projectaria_client_sdk_samples/ticsync/recording_session_11_06_001"
+ticsync_sample_path = "/Users/troyehuang/projectaria_client_sdk_samples/video_server/"
 
 ticsync_filenames = [
     "person_a.vrs",

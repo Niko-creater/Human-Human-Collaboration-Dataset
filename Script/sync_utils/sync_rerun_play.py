@@ -24,7 +24,7 @@ streams = {
     "camera-audio":StreamId("231-1"),
     "camera-eyetracking":StreamId("211-1"),}
 
-ticsync_sample_path = "/home/peiyu/Documents/MR_Project/video_vrs/recording_session_11_17_001"
+ticsync_sample_path = "/Users/troyehuang/projectaria_client_sdk_samples/test_recording/"
 
 ticsync_pathnames = [
     os.path.join(ticsync_sample_path, filename)
@@ -66,9 +66,9 @@ def create_reference_iterator(server_provider:data_provider) -> Iterator[SensorD
     deliver_option.deactivate_stream_all()
     # Activate the one camera-rgb stream we care about.
     deliver_option.activate_stream(streams["camera-rgb"])
-    deliver_option.activate_stream(streams["camera-slam-left"])
-    deliver_option.activate_stream(streams["camera-eyetracking"])
-    deliver_option.activate_stream(streams["camera-audio"])
+    # deliver_option.activate_stream(streams["camera-slam-left"])
+    # deliver_option.activate_stream(streams["camera-eyetracking"])
+    # deliver_option.activate_stream(streams["camera-audio"])
     # Create a timestamp-ordered, sensor-data iterator from the server.
     # This will work for large streams like the ~4GB VRS files for the
     # three-minute videos.
@@ -187,7 +187,7 @@ def show_rerun(providers: list[data_provider], start_ticsync_timestamp_ns:int, n
                 timestamp_ns=client_timestamp_ns,)
 
 rr.init("Aria TICSync Visualizer", spawn=True)
-rr.connect()
+# rr.connect()
 start_time_ns = ticsync_time_ns_after_settlement
 # print(start_time_ns, len(all_server_timestamps_ns))
 # print(data_providers)

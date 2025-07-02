@@ -191,7 +191,7 @@ def convert_sync_vrs_to_mp4(
         audio_clip = AudioFileClip(
             temp_audio_file,
         )
-        video_writer_clip = video_writer_clip.set_audio(audio_clip)
+        video_writer_clip = video_writer_clip.with_audio(audio_clip)
         audio_writer_clip.close()
 
     video_writer_clip.write_videofile(output_video_file, fps=converter.video_fps())
